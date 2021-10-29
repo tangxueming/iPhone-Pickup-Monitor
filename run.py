@@ -106,7 +106,7 @@ while True:
         try:
             response = requests.request("GET", url, headers=headers, data={})
         except Exception as e:
-            push(urlencode({'title': '发送库存请求失败'}), '')
+            push( '发送库存请求失败', '')
         res_text = response.text
         res_json = json.loads(res_text)
         stores = res_json['body']['content']['pickupMessage']['stores']
