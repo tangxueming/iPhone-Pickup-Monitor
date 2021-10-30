@@ -11,7 +11,7 @@ def bbs(s):
     # 优化日志， 打印10%
     i = random.randint(1, 100)
     if i > 90:
-        print('[{}] {}'.format(datetime.datetime.now().strftime('%H:%M:%S'), s))
+        print('[{}] {}'.format(datetime.datetime.now().strftime('%H:%M:%S'), s), file=f,flush=True)
 
 
 def push(title, desc):
@@ -25,16 +25,18 @@ def push(title, desc):
         traceback.format_exc()
 
 
+f = open('/root/iPhone-Pickup-Monitor/log.txt', 'w+')
+
 # input('欢迎使用iPhone取货预约助手，请合理使用工具\n正在检查环境：\n即将播放预约提示音，按任意键开始...')
-print('欢迎使用iPhone取货预约助手，请合理使用工具\n正在检查环境：\n即将播放预约提示音，按任意键开始...')
+print('欢迎使用iPhone取货预约助手，请合理使用工具\n正在检查环境：\n即将播放预约提示音，按任意键开始...', file=f,flush=True)
 # sound_alarm = './alarm.mp3'
 # playsound(sound_alarm)
 
-print('配置特定型号')
+print('配置特定型号', file=f,flush=True)
 # Config State
 # 服务器位置
-# type_phone = json.load(open('/root/iPhone-Pickup-Monitor/category.json', encoding='utf-8'))
-type_phone = json.load(open('category.json', encoding='utf-8'))
+type_phone = json.load(open('/root/iPhone-Pickup-Monitor/category.json', encoding='utf-8'))
+# type_phone = json.load(open('category.json', encoding='utf-8'))
 url_param = ['state', 'city', 'district']
 config_param = []
 dic_param = {}
@@ -54,9 +56,9 @@ input_size = 7
 code_iphone = list(type_phone[choice_type])[input_size]
 select_size = type_phone[choice_type][code_iphone]
 # input('您的选择：{} {}，按任意键继续...'.format(choice_type, select_size))
-print('您的选择：{} {}，按任意键继续...'.format(choice_type, select_size))
+print('您的选择：{} {}，按任意键继续...'.format(choice_type, select_size), file=f,flush=True)
 
-print('选择计划预约的地址')
+print('选择计划预约的地址', file=f,flush=True)
 headers = {
     'sec-ch-ua': '"Google Chrome";v="93", " Not;A Brand";v="99", "Chromium";v="93"',
     'Referer': 'https://www.apple.com.cn/shop/buy-iphone/iphone-13-pro/{}'.format(code_iphone),
@@ -86,18 +88,18 @@ for step, param in enumerate(url_param):
     else:
         lst_choice_param.append('{}={}'.format(param, result_param))
 
-print('正在加载网络资源...')
+print('正在加载网络资源...', file=f,flush=True)
 url = "https://www.apple.com.cn/shop/address-lookup?{}".format('&'.join(lst_choice_param))
 response = requests.request("GET", url, headers=headers, data={})
 response_json = json.loads(response.text)
 provinceCityDistrict = response_json['body']['provinceCityDistrict']
 # input('您的选择：{}，按任意键继续...'.format(provinceCityDistrict))
-print('您的选择：{}，按任意键继续...'.format(provinceCityDistrict))
+print('您的选择：{}，按任意键继续...'.format(provinceCityDistrict), file=f,flush=True)
 # fixme 使用自己的key 谢谢
 key = 'SCT89259TnFfyHpdFeaamFehINJJDzDaQ'
 # Loop for checking iPhone status
 pre_is_valiable = False
-print('开始预约')
+print('开始预约', file=f,flush=True)
 
 while True:
     try:
@@ -106,7 +108,7 @@ while True:
         try:
             response = requests.request("GET", url, headers=headers, data={})
         except Exception as e:
-            push( '发送库存请求失败', '')
+            print('发送库存请求失败',file=f)
         res_text = response.text
         res_json = json.loads(res_text)
         stores = res_json['body']['content']['pickupMessage']['stores']
@@ -114,12 +116,11 @@ while True:
         storeName = ''
         for item in stores:
             storeName = item['storeName']
-            if ('泰禾广场' != storeName):
-                continue
-            pickupSearchQuote = item['partsAvailability'][code_iphone]['pickupSearchQuote']
-            bbs('{} - {}'.format(storeName, pickupSearchQuote))
-            if pickupSearchQuote == '今天可取货':
-                is_available = True
+            if ('泰禾广场' == storeName):
+                pickupSearchQuote = item['partsAvailability'][code_iphone]['pickupSearchQuote']
+                bbs('{} - {}'.format(storeName, pickupSearchQuote))
+                if pickupSearchQuote == '今天可取货':
+                    is_available = True
 
         # 本次可以， 上次不可以，发送 可预约 推送
         if is_available & (not pre_is_valiable):
