@@ -13,6 +13,9 @@ def bbs(s):
     if i > 90:
         print('[{}] {}'.format(datetime.datetime.now().strftime('%H:%M:%S'), s), file=f,flush=True)
 
+def bbs2(s):
+    print('[{}] {}'.format(datetime.datetime.now().strftime('%H:%M:%S'), s), file=f,flush=True)
+
 
 def push(title, desc):
     try:
@@ -127,6 +130,9 @@ while True:
             # Display while iPhone is available
             # print('以下直营店预约可用：\n{}\nhttps://www.apple.com.cn/shop/buy-iphone'.format(','.join(lst_available)))
             push('iphone 预约', '{} 可以预约 {} {}'.format(
+                storeName, choice_type,
+                select_size))
+            bbs2('iphone 预约', '{} 可以预约 {} {}'.format(
                 storeName, choice_type,
                 select_size))
 
